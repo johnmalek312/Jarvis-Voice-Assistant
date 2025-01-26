@@ -1,0 +1,13 @@
+--extra-index-url https://download.pytorch.org/whl/cu124
+torch
+torchvision
+torchaudio
+realtimetts[elevenlabs,openai,gtts]
+RealtimeSTT
+sounddevice
+soundfile
+keyboard
+llama-index-core
+llama-index-llms-openai
+llama-index-embeddings-openai
+git+https://github.com/johnmalek312/custom-docstring-walker.git@main
