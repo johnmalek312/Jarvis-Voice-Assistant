@@ -1,6 +1,7 @@
 # region imports
 # Disable TensorFlow optimization for compatibility
 import os
+
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 # Standard library imports
@@ -17,14 +18,11 @@ from RealtimeTTS import TextToAudioStream
 from RealtimeSTT import AudioToTextRecorder
 
 # AI/ML imports
-from helpers import llamaindex_helper
+from helpers.utils import *
 from llm_response_generator import LLMResponseGenerator
 from prompts import *
 from config import *
 
-# Add Phoenix API Key for tracing
-os.environ["OPENAI_API_KEY"] = API_KEYS["OPENAI"]
-os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = f"api_key={API_KEYS["PHOENIX"]}"
 
 # endregion imports
 
@@ -79,7 +77,8 @@ class VoiceAssistant:
         elif Engine == "GTTS":
             # Use GTTS engine
             from RealtimeTTS import GTTSEngine, GTTSVoice
-            self.audio_engine = GTTSEngine(GTTSVoice(language=GTTSConfig['language'], tld=GTTSConfig['tld'], speed=GTTSConfig['speed']))
+            self.audio_engine = GTTSEngine(
+                GTTSVoice(language=GTTSConfig['language'], tld=GTTSConfig['tld'], speed=GTTSConfig['speed']))
         elif Engine == "Azure":
             # TODO: Implement Azure TTS engine configuration
             pass
@@ -106,7 +105,7 @@ class VoiceAssistant:
             spinner=True,
             min_length_of_recording=1.1,
             on_vad_detect_start=partial(AudioManager.play_sound, AUDIO_FILES['ACTIVATE']),
-            on_recording_stop=partial(AudioManager.play_sound, AUDIO_FILES['DEACTIVATE'])
+            on_recording_stop=partial(AudioManager.play_sound, AUDIO_FILES['DEACTIVATE']),
         )
 
     def setup_hotkeys(self):
@@ -185,9 +184,10 @@ class VoiceAssistant:
     async def process_response(self, text):
         """Processes the user's text input and generates a response using the LLM. Then it plays the response audio by sending it to the configured TTS Engine."""
         print(f'User: {text}')
-        response = await self.llm.get_response(text)
+        response: str = await self.llm.get_response(text)
         print(f"Assistant: {response}")
-        await self.play_audio(response)
+        if __name__ == '__main__':
+            await self.play_audio(clean_text(response))
 
     async def play_audio(self, text):
         """Plays the given text as audio using the configured TTS Engine."""

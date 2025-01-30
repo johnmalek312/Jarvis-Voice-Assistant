@@ -1,0 +1,36 @@
+{
+  "_comment": "keys that start with capital letter are usually set by the program, so its better to set them to empty string or null before your first run",
+  "user_data": {
+    "personal_information": {
+      "name": "John Doe",
+      "age": 30,
+      "email": "johndoe@example.com",
+      "phone": "+1234567890",
+      "location": {
+        "street": "1234 Sample St",
+        "city": "altona north",
+        "state": "victoria",
+        "postal_code": "3025",
+        "country": "australia",
+        "Place_id": ""
+      }
+    }
+  },
+  "google_search": {
+    "_comment": "This is for the google search API. You can get your own key from https://developers.google.com/custom-search/v1/overview and search engine id from https://cse.google.com/cse/all",
+    "api_key": "api key here",
+    "search_engine_id": "search engine id here"
+  },
+  "meteosource": {
+    "_comment": "This is for the weather API. You can get your own key from https://www.meteosource.com/",
+    "api_key": "api key here"
+  },
+  "url_shortner": {
+    "_comment": "This is for the URL shortner API. You can get your own key from https://tinyurl.com/app/settings/api",
+    "api_key": "api key here"
+  },
+  "theguardian": {
+    "_comment": "This is for the news API. You can get your own key from https://open-platform.theguardian.com/",
+    "api_key": "api key here"
+  }
+}

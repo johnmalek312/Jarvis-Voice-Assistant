@@ -1,12 +1,12 @@
 # API Keys for various services
 API_KEYS = {
-    'PHOENIX': "Your_api_key_here", # optional for debugging
-    'ELEVENLABS': "Your_api_key_here", # optional if you are not using ElevenLabs in the `Engine`
-    'OPENAI': "Your_api_key_here" # unfortunately it is currently required.
+    'PHOENIX': "api key here", # optional for debugging
+    'ELEVENLABS': "api key here", # optional if you are not using ElevenLabs in the `Engine`
+    'OPENAI': "api key here" # unfortunately it is currently required.
 }
 
 # Phoenix tracing flag
-trace = False
+trace = True
 
 # Text-to-Speech Engine Selection
 Engine = "Piper"  # Available engines: "ElevenLabs", "OpenAI", "Azure", "GTTS", "Piper" (highly recommend Piper)
@@ -49,7 +49,7 @@ MODEL_CONFIG = {
     'WHISPER_LANGUAGE': "en",       # Target language
     'LLM_MODEL': "gpt-4o-mini",    # Language model
     'MAX_MESSAGE_HISTORY': 3,        # Number of messages to retain in history, the lower the cheaper the model would cost.
-    'timeout': 20                  # Timeout for LLM response generation
+    'timeout': 30                    # Timeout for LLM response generation
 }
 
 # Hotkey Configuration
