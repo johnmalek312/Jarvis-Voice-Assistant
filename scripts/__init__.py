@@ -11,3 +11,4 @@ from . import short_comm
 from . import wikipedia
 from . import system_stats
 from . import window_tools
+from . import python
