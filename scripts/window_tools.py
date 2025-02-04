@@ -2,7 +2,6 @@ import os
 import glob
 from tool_registry import register_tool
 
-
 @register_tool()
 def get_apps() -> list[str] | str:
     """Gets the list of all available applications and returns their path that can be used in the open_app function or other functions to open or do some operation."""

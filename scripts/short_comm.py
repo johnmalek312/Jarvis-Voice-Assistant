@@ -36,6 +36,7 @@ def set_clipboard(text: str) -> None | str:
     """Set the clipboard content"""
     try:
         pyperclip.copy(text)
+        return "Clipboard content set successfully"
     except Exception as e:
         return f"Error while setting clipboard content: {e}"
 

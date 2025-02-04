@@ -10,8 +10,8 @@ from pydantic import Field
 
 
 from tool_registry import TOOL_REGISTRY
-from .response_event import InputEvent, ToolCallEvent, ToolResultEvent
-
+from .response_event import InputEvent, ToolCallEvent
+from logger import app_logger as logging
 
 
 
@@ -88,9 +88,8 @@ class FunctionCallingAgent(Workflow):
         if message:
             # retrieve relevant nodes
             nodes = self.index_handler.retrieve_nodes(message)
-            tools = FunctionCallingAgent.get_tools_from_nodes(nodes=nodes) or []
+            self.current_tools = FunctionCallingAgent.get_tools_from_nodes(nodes=nodes) or []
             ### make the current tools be the tools where key is "static" from self.tools list of key value pairs
-            self.current_tools = [item["static"] for item in self.tools if "static" in item]
         chat_history = ev.input
         response = await self.llm.achat_with_tools(
             tools=self.current_tools, chat_history=chat_history, allow_parallel_tool_calls=True
@@ -134,6 +133,7 @@ class FunctionCallingAgent(Workflow):
                 continue
 
             try:
+                logging.info(f"Calling tool: {tool.metadata.get_name()} with kwargs: {tool_call.tool_kwargs}")
                 tool_output = tool(**tool_call.tool_kwargs)
                 self.sources.append(tool_output)
                 tool_msgs.append(

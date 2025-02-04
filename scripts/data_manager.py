@@ -2,13 +2,12 @@
 
 import json
 import os
+from pathlib import Path
 
 class DataManager:
-    current_dir = os.path.dirname(__file__)
     # Define the file paths inside the DataManager
     FILE_PATHS = {
-        "general_data.json": current_dir + "/general_data.json",
-        "website_dict.json": current_dir + "/website_dict.json"
+        "general_data.json": Path("scripts_data/general_data.json").resolve(),
     }
 
     data_cache = {}
@@ -47,29 +46,30 @@ class DataManager:
     @property
     def user(cls):
         """Access user data directly like DataManager.user."""
-        data = cls._load_data('general_data.json')
+        data = cls._load_data("general_data.json")
         return data.get('user_data', {}).get('personal_information', {})
 
     @classmethod
     @property
-    def websites(cls):
-        """Access websites data like DataManager.websites."""
-        return cls._load_data('website_dict.json')
-    @classmethod
-    @property
     def meteosource(cls):
         """Access meteosource data for the weather (api key)."""
-        data = cls._load_data('general_data.json')
+        data = cls._load_data("general_data.json")
         return data.get('meteosource', {})
     @classmethod
     @property
     def google_search(cls):
         """Access meteosource data for the weather (api key)."""
-        data = cls._load_data('general_data.json')
+        data = cls._load_data("general_data.json")
         return data.get('google_search', {})
     @classmethod
     @property
     def url_shortner(cls):
         """Access URL shortener data for the TinyURL API key."""
-        data = cls._load_data('general_data.json')
+        data = cls._load_data("general_data.json")
         return data.get('url_shortner', {})
+    @classmethod
+    @property
+    def browser(cls):
+        """Access browser data for the browser settings."""
+        data = cls._load_data("general_data.json")
+        return data.get('browser_data', {})

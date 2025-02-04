@@ -1,4 +1,8 @@
 # region imports
+# logging
+from logger import app_logger as logging
+import logger
+logging.info("Importing libraries...")
 # Disable TensorFlow optimization for compatibility
 import os
 
@@ -19,9 +23,11 @@ from RealtimeSTT import AudioToTextRecorder
 
 # AI/ML imports
 from helpers.utils import *
+logger.log_with_stack("about to run 1")
 from llm_response_generator import LLMResponseGenerator
 from prompts import *
 from config import *
+
 
 
 # endregion imports
@@ -47,38 +53,40 @@ class VoiceAssistant:
 
         # Initialize components
         self.initialize_components()
+        logging.info("Setting up hotkeys...")
         self.setup_hotkeys()
 
     def initialize_components(self):
         # Initialize text-to-speech engine based on selected Engine type
+        logging.info(f"Initializing TTS Engine: {Engine}...")
         if Engine == "ElevenLabs":
             # Use ElevenLabs TTS engine
             from RealtimeTTS import ElevenlabsEngine
             self.audio_engine = ElevenlabsEngine(
-                API_KEYS['ELEVENLABS'],
-                voice=ElevenLabConfig['NAME'],
-                model=ElevenLabConfig['MODEL'],
-                id=ElevenLabConfig['ID']
+                APIConfig.ELEVENLABS,
+                voice=ElevenLabConfig.NAME,
+                model=ElevenLabConfig.MODEL,
+                id=ElevenLabConfig.ID
             )
         elif Engine == "Piper":
             # Use Piper local TTS engine
             from RealtimeTTS import PiperEngine, PiperVoice
             self.audio_engine = PiperEngine(
-                piper_path=PiperEngineConfig['PIPER_PATH'],
+                piper_path=PiperEngineConfig.PIPER_PATH,
                 voice=PiperVoice(
-                    model_file=PiperEngineConfig['VOICE_MODEL'],
-                    config_file=PiperEngineConfig['VOICE_CONFIG']
+                    model_file=PiperEngineConfig.VOICE_MODEL,
+                    config_file=PiperEngineConfig.VOICE_CONFIG
                 )
             )
         elif Engine == "OpenAI":
             # Use OpenAI TTS engine
             from RealtimeTTS import OpenAIEngine
-            self.audio_engine = OpenAIEngine(model=OpenAIConfig['model'], voice=OpenAIConfig['voice'])
+            self.audio_engine = OpenAIEngine(model=OpenAIConfig.model, voice=OpenAIConfig.voice)
         elif Engine == "GTTS":
             # Use GTTS engine
             from RealtimeTTS import GTTSEngine, GTTSVoice
             self.audio_engine = GTTSEngine(
-                GTTSVoice(language=GTTSConfig['language'], tld=GTTSConfig['tld'], speed=GTTSConfig['speed']))
+                GTTSVoice(language=GTTSConfig.language, tld=GTTSConfig.tld, speed=GTTSConfig.speed))
         elif Engine == "Azure":
             # TODO: Implement Azure TTS engine configuration
             pass
@@ -88,24 +96,24 @@ class VoiceAssistant:
             engine=self.audio_engine,
             on_audio_stream_stop=self.on_play_stop
         )
-
+        logging.info("Initializing LLM Response Generator...")
         # Initialize LLM
         self.llm = LLMResponseGenerator(
-            api_key=API_KEYS['OPENAI'],
-            model_name=MODEL_CONFIG['LLM_MODEL'],
+            api_key=APIConfig.OPENAI,
+            model_name=ModelConfig.LLM_MODEL,
             sys_prompt=sys_prompt_v2,
-            n_message_history=MODEL_CONFIG['MAX_MESSAGE_HISTORY'],
+            n_message_history=ModelConfig.MAX_MESSAGE_HISTORY,
             trace=trace
         )
-
+        logging.info("Initializing STT Engine...")
         # Initialize STT
         self.recorder = AudioToTextRecorder(
-            model=MODEL_CONFIG['WHISPER_MODEL'],
-            language=MODEL_CONFIG['WHISPER_LANGUAGE'],
+            model=ModelConfig.WHISPER_MODEL,
+            language=ModelConfig.WHISPER_LANGUAGE,
             spinner=True,
             min_length_of_recording=1.1,
-            on_vad_detect_start=partial(AudioManager.play_sound, AUDIO_FILES['ACTIVATE']),
-            on_recording_stop=partial(AudioManager.play_sound, AUDIO_FILES['DEACTIVATE']),
+            on_vad_detect_start=partial(AudioManager.play_sound, AUDIO_FILES.ACTIVATE),
+            on_recording_stop=partial(AudioManager.play_sound, AUDIO_FILES.DEACTIVATE),
         )
 
     def setup_hotkeys(self):
@@ -117,9 +125,9 @@ class VoiceAssistant:
             - QUIT: Stops the assistant completely
             - INTERRUPT: Interrupts any currently playing audio
         """
-        keyboard.add_hotkey(HOTKEYS['TOGGLE'], self.start_stop_assistant)
-        keyboard.add_hotkey(HOTKEYS['QUIT'], lambda: setattr(self, 'keep_running', False))
-        keyboard.add_hotkey(HOTKEYS['INTERRUPT'], lambda: setattr(self, 'interrupt_audio_player', True))
+        keyboard.add_hotkey(HOTKEYS.TOGGLE, self.start_stop_assistant)
+        keyboard.add_hotkey(HOTKEYS.QUIT, lambda: setattr(self, 'keep_running', False))
+        keyboard.add_hotkey(HOTKEYS.INTERRUPT, lambda: setattr(self, 'interrupt_audio_player', True))
 
     def start_stop_assistant(self):
         """Toggles the assistant between active and paused states.

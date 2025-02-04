@@ -1,66 +1,66 @@
-# API Keys for various services
-API_KEYS = {
-    'PHOENIX': "api key here", # optional for debugging
-    'ELEVENLABS': "api key here", # optional if you are not using ElevenLabs in the `Engine`
-    'OPENAI': "api key here" # unfortunately it is currently required.
-}
+
+class APIConfig:
+    """API keys for external services"""
+    PHOENIX: str = "your api key here"  # optional for debugging
+    ELEVENLABS: str = "your api key here"  # optional if not using ElevenLabs
+    OPENAI: str = "your api key here"  # required
 
 # Phoenix tracing flag
-trace = True
+trace: bool = False
 
 # Text-to-Speech Engine Selection
-Engine = "Piper"  # Available engines: "ElevenLabs", "OpenAI", "Azure", "GTTS", "Piper" (highly recommend Piper)
+Engine: str = "Piper"  # Available engines: "ElevenLabs", "OpenAI", "Azure", "GTTS", "Piper" (highly recommend Piper)
 
-# ElevenLabs Voice Configuration
-ElevenLabConfig = {
-    'ID': "XB0fDUnXU5powFXDhCwa",
-    'NAME': "Charlotte",
-    'MODEL': "eleven_flash_v2_5"
-}
+class ElevenLabConfig:
+    ID: str = "XB0fDUnXU5powFXDhCwa"
+    NAME: str = "Charlotte"
+    MODEL: str = "eleven_flash_v2_5"
 
-# OpenAI TTS Configuration
-OpenAIConfig = {
-    "model": "tts-1",
-    "voice": "nova"
-}
+class OpenAIConfig:
+    model: str = "tts-1"
+    voice: str = "nova"
 
-# Azure TTS Configuration (Empty for now)
-AzureEngineConfig = {
+class AzureEngineConfig:
+    pass
 
-}
+class PiperEngineConfig:
+    PIPER_PATH: str = "models/PiperVoice/piper/piper.exe"
+    VOICE_MODEL: str = "models/PiperVoice/amy-low-voice.onnx"
+    VOICE_CONFIG: str = "models/PiperVoice/amy-low-config.json"
+    speed: int = 10
 
-# Piper TTS Configuration with file paths. This is very fast model
-PiperEngineConfig = {
-    'PIPER_PATH': "models/PiperVoice/piper/piper.exe",
-    'VOICE_MODEL': "models/PiperVoice/amy-low-voice.onnx",
-    'VOICE_CONFIG': "models/PiperVoice/amy-low-config.json",
-    'speed': 10
-}
-# Google TTS Configuration
-GTTSConfig = {
-    'language': 'en',
-    'tld': 'com',
-    'speed': 1
-}
+class GTTSConfig:
+    language: str = 'en'
+    tld: str = 'com'
+    speed: float = 1.0
 
-# AI Model Configuration
-MODEL_CONFIG = {
-    'WHISPER_MODEL': "medium",      # Speech recognition model size
-    'WHISPER_LANGUAGE': "en",       # Target language
-    'LLM_MODEL': "gpt-4o-mini",    # Language model
-    'MAX_MESSAGE_HISTORY': 3,        # Number of messages to retain in history, the lower the cheaper the model would cost.
-    'timeout': 30                    # Timeout for LLM response generation
-}
+class ModelConfig:
+    WHISPER_MODEL: str = "medium"
+    WHISPER_LANGUAGE: str = "en"
+    LLM_MODEL: str = "gpt-4o-mini"
+    MAX_MESSAGE_HISTORY: int = 3
+    timeout: int = 30
 
-# Hotkey Configuration
-HOTKEYS = {
-    'TOGGLE': 'pause',    # Toggle assistant on/off
-    'QUIT': 'home',       # Stop assistant completely
-    'INTERRUPT': '+'      # Interrupt current audio
-}
+class HOTKEYS:
+    TOGGLE: str = 'pause'
+    QUIT: str = 'home'
+    INTERRUPT: str = '+'
 
-# Sound Effect File Paths
-AUDIO_FILES = {
-    'ACTIVATE': "assets/active.wav",    # Sound played on activation
-    'DEACTIVATE': "assets/deactive.mp3" # Sound played on deactivation
-}
+class AUDIO_FILES:
+    """Sound effect file paths"""
+    ACTIVATE: str = "assets/active.wav"      # Sound played on activation
+    DEACTIVATE: str = "assets/deactive.mp3"  # Sound played on deactivation
+
+class FEATURES:
+    """Feature flags"""
+    GMAIL: bool = True
+    BROWSER: bool = True
+    WEATHER: bool = True
+    GOOGLE: bool = True
+    WIKIPEDIA: bool = True
+    INSTAGRAM: bool = True
+    URL_SHORTENER: bool = True
+    SYSTEM_STATS: bool = True
+    WINDOW_TOOLS: bool = True
+    SHORT_COMMS: bool = True
+    PYTHON: bool = True

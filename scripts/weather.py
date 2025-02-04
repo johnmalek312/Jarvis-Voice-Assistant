@@ -99,4 +99,4 @@ def set_user_place_id(place_id: str) -> None:
     """Sets the user's place id."""
     user_location = dm.user['location']
     user_location['Place_id'] = place_id
-    dm.save_data_cache('general_data.json')
+    dm.save_data_cache('../scripts_data/general_data.json')

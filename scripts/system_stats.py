@@ -16,7 +16,8 @@ def get_system_info():
             - Release (str): The operating system release version.
             - Version (str): The detailed version of the operating system.
             - Machine (str): The machine type (e.g., 'AMD64').
-            - Processor (str): The processor type.
+            - CPU (str): The CPU model name.
+            - Processor (str): The processor family type.
             - Boot Time (str): The system's boot time formatted as 'YYYY-MM-DD HH:MM:SS'.
             - Windows Edition (str): The specific edition of Windows (e.g., 'Windows 10 Pro') or 'Unknown' if not determined.
         str: An error message describing the exception if one occurs during information retrieval.
@@ -27,6 +28,7 @@ def get_system_info():
         if platform.system() == "Windows":
             output = subprocess.check_output("wmic os get caption", shell=True, text=True)
             windows_edition = list(filter(bool, output.strip().split("\n")))[1].strip()
+        cpu_name = str(subprocess.check_output("wmic cpu get name", shell=True)).split("\\n")[1].strip()
 
         info = {
             "System": platform.system(),
@@ -34,6 +36,7 @@ def get_system_info():
             "Release": platform.release(),
             "Version": platform.version(),
             "Machine": platform.machine(),
+            "CPU": cpu_name,
             "Processor": platform.processor(),
             "Boot Time": datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S"),
             "Windows Edition": windows_edition,
@@ -46,7 +49,10 @@ def get_system_info():
 def get_cpu_info():
     """Returns CPU usage and core details."""
     try:
+        cpu_name = subprocess.check_output("wmic cpu get name", shell=True).decode().strip().split("\n")[1]
+        print(cpu_name)
         cpu_info = {
+            "CPU Name": cpu_name,
             "Physical Cores": psutil.cpu_count(logical=False),
             "Logical Cores": psutil.cpu_count(logical=True),
             "CPU Usage (%)": psutil.cpu_percent(interval=1),

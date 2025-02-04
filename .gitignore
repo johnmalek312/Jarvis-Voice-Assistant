@@ -189,6 +189,18 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-scripts/general_data.json
+scripts_data/general_data.json
+scripts_data/client_secret.json
+
 config.py
-driver/msedgedriver.exe
+driver/browser_driver.exe
+
+# Ignore all log files
+*.log
+
+scripts/instagram_downloads
+scripts/script_test.py.ipynb
+
+assets/output1.wav
+
+scripts_data/gmail_token.json

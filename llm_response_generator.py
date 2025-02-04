@@ -3,20 +3,21 @@ from llama_index.core import VectorStoreIndex
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.core.vector_stores import SimpleVectorStore
 from llama_index.llms.openai import OpenAI
-from helpers import llamaindex_helper
+from helpers import llamaindex_helper # needed
 
-import config
 import prompts
 from workflow.workflow import FunctionCallingAgent
 from tool_registry import TOOL_REGISTRY
 
-import scripts # needed
 from config import *
 
 # Add Phoenix API Key for tracing
 import os
-os.environ["OPENAI_API_KEY"] = API_KEYS["OPENAI"]
-os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = f"api_key={API_KEYS["PHOENIX"]}"
+os.environ["OPENAI_API_KEY"] = APIConfig.OPENAI
+os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = f"api_key={APIConfig.PHOENIX}"
+
+from logger import app_logger as logging
+import scripts # needed
 
 class LlamaIndexHandler:
     def __init__(self, directory_path: str, api_key: str):
@@ -28,13 +29,16 @@ class LlamaIndexHandler:
         self.retriever = self.index.as_retriever(similarity_top_k=3)
     def retrieve_nodes(self, query: str):
         """Retrieve relevant documents using the retriever."""
-        return self.retriever.retrieve(query)
+        nodes = self.retriever.retrieve(query)
+        logging.info(f"Retrieved {len(nodes)} nodes.")
+        return nodes
 
 
 
 class LLMResponseGenerator:
-    def __init__(self, api_key=API_KEYS["OPENAI"], model_name=MODEL_CONFIG["LLM_MODEL"], sys_prompt=prompts.sys_prompt_v2, n_message_history=3, directory_path="scripts", trace = config.trace):
+    def __init__(self, api_key=APIConfig.OPENAI, model_name=ModelConfig.LLM_MODEL, sys_prompt=prompts.sys_prompt_v2, n_message_history=3, directory_path="scripts", trace = trace):
         if trace:
+            logging.info("Initializing LlamaIndex Tracing...")
             from opentelemetry.sdk import trace as trace_sdk
             from opentelemetry.sdk.trace.export import SimpleSpanProcessor
             from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
@@ -61,7 +65,7 @@ class LLMResponseGenerator:
             system_prompt=sys_prompt,
             n_message_history=n_message_history,
             index_handler=self.index_handler,
-            timeout=MODEL_CONFIG['timeout']
+            timeout=ModelConfig.timeout
         )
 
 

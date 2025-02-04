@@ -2,8 +2,8 @@ import json
 
 from llama_index.tools.google import GoogleSearchToolSpec
 from pydantic import Field
-import logging
 from .data_manager import DataManager as dm
+from logger import app_logger as logging
 from tool_registry import register_tool
 from llama_index.readers.web import BeautifulSoupWebReader
 from llama_index.core.schema import TextNode
@@ -20,13 +20,13 @@ def google_search(query: str) -> list[dict] | str:
     """Searches Google for a query and returns the top 3 links by default, call fetch link result function for the actual content of the links.
     This is useful to use with the get_url_markdown function to get the most relevant chunk of text from the search results, it's recommended."""
     try:
-        logging.warning(f"Searching Google for: {query}")
+        logging.info(f"Searching Google for: {query}")
         res = google_spec.google_search(query)
         items = json.loads(res[0].text)["items"]
         keys = ["title", "link", "snippet"]
         # get the links and make them in a list
         links = [item["link"] for item in items]
-        logging.warning(f"returned links: {links}")
+        logging.info(f"returned links: {links}")
         return [{k: v for k, v in item.items() if k in keys} for item in items]
     except Exception as e:
         return "Error while searching Google: " + str(e)
@@ -80,8 +80,6 @@ def load_data(
 
     return documents
 
-
-logging.basicConfig(level=logging.WARNING)
 class ParagraphSplitter(TextSplitter):
     minimum_characters: int = Field(20, ge=1)
     def __init__(self):
@@ -125,14 +123,13 @@ def fetch_link_content(url: str, query: str, minimum_characters: int = 20) -> li
         would return the most relevant chunk of text from the w3schools python introduction page.
     """
     try:
-        logging.warning(f"Getting content from: {url}\nquery: {query}")
+        logging.info(f"Getting content from: {url}\nquery: {query}")
         first_splitter.minimum_characters = minimum_characters
         loader = BeautifulSoupWebReader()
         markdown_list = load_data(soup_reader=loader, urls=[url])
         nodes = two_step_chunking(markdown_list)
         results = VectorStoreIndex(nodes=nodes).as_retriever().retrieve(query)
-        logging.warning(f"Received {[result.node.text for result in results]}")
+        logging.info(f"Received {[result.node.text for result in results]}")
         return [result.node.text for result in results]
     except Exception as e:
         return "Error while fetching url: " + str(e)
-
