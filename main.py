@@ -1,32 +1,32 @@
 # region imports
-# logging
-from logger import app_logger as logging
-import logger
-logging.info("Importing libraries...")
-# Disable TensorFlow optimization for compatibility
-import os
+if __name__ == "__main__": # important to stop RealtimeSTT from reloading modules in child process.
+    # logging
+    from logger import app_logger as logging
+    import logger
+    logging.info("Importing libraries...")
+    # Disable TensorFlow optimization for compatibility
+    import os
 
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+    os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
-# Standard library imports
-import threading
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
-from functools import partial
+    # Standard library imports
+    import threading
+    import asyncio
+    from concurrent.futures import ThreadPoolExecutor
+    from functools import partial
 
-# Audio processing imports
-import sounddevice as sd
-import soundfile as sf
-import keyboard
-from RealtimeTTS import TextToAudioStream
-from RealtimeSTT import AudioToTextRecorder
+    # Audio processing imports
+    import sounddevice as sd
+    import soundfile as sf
+    import keyboard
+    from RealtimeTTS import TextToAudioStream
+    from RealtimeSTT import AudioToTextRecorder
 
-# AI/ML imports
-from helpers.utils import *
-logger.log_with_stack("about to run 1")
-from llm_response_generator import LLMResponseGenerator
-from prompts import *
-from config import *
+    # AI/ML imports
+    from helpers.utils import *
+    from llm_response_generator import LLMResponseGenerator
+    from prompts import *
+    from config import *
 
 
 
@@ -228,6 +228,5 @@ class VoiceAssistant:
 
 
 if __name__ == '__main__':
-    print("Started")
     assistant = VoiceAssistant()
     asyncio.run(assistant.run())

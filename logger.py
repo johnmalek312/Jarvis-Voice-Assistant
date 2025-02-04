@@ -1,6 +1,5 @@
 import logging
 import os
-import traceback
 
 log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
@@ -24,6 +23,3 @@ console_handler.setFormatter(formatter)
 app_logger.addHandler(console_handler)
 app_logger.propagate = False
 
-def log_with_stack(msg):
-    stack = traceback.format_stack()
-    app_logger.info("%s\nStack trace:\n%s", msg, ''.join(stack))
