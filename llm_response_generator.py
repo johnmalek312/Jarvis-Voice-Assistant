@@ -1,11 +1,10 @@
 import tiktoken
 from llama_index.core.callbacks import TokenCountingHandler, CallbackManager
 from llama_index.readers.docstring_walker import DocstringWalker
-from llama_index.core import VectorStoreIndex
+from llama_index.core import VectorStoreIndex, load_index_from_storage, StorageContext
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.core.vector_stores import SimpleVectorStore
 from llama_index.llms.openai import OpenAI
-from helpers import llamaindex_helper # needed
 
 import prompts
 from workflow.workflow import FunctionCallingAgent
@@ -15,24 +14,44 @@ from config import *
 
 # Add Phoenix API Key for tracing
 import os
+from helpers import utils
 os.environ["OPENAI_API_KEY"] = APIConfig.OPENAI
 
 from logger import app_logger as logging
-import scripts # needed
+
 from scripts import data_manager
+from helpers import llamaindex_helper # required monkey patching
+
 class LlamaIndexHandler:
     def __init__(self, directory_path: str, api_key: str, callback_manager = None):
         walker = DocstringWalker()
         documents = walker.load_data(directory_path)
-        vector_store = SimpleVectorStore()
         self.embed_model = OpenAIEmbedding(api_key=api_key)
-        self.index = VectorStoreIndex.from_documents(documents=documents, vector_store=vector_store, embed_model=self.embed_model, callback_manager=callback_manager)
-        self.retriever = self.index.as_retriever(similarity_top_k=3)
+        hash_file = os.path.join(CACHE_DIRECTORY, "index/doc.hash")
+        self.hash = None
+        if os.path.exists(hash_file):
+            with open(hash_file, "r") as f:
+                self.hash = f.read()
+        if utils.compute_documents_hash(documents) == self.hash:
+            logging.info("Loading index from cache.")
+            storage_context = StorageContext.from_defaults(persist_dir=CACHE_DIRECTORY + "/index")
+            self.index = load_index_from_storage(storage_context=storage_context, embed_model=self.embed_model, callback_manager=callback_manager)
+        else:
+            logging.info("Rebuilding index.")
+            vector_store = SimpleVectorStore()
+            self.index = VectorStoreIndex.from_documents(documents=documents, vector_store=vector_store,
+                                                         embed_model=self.embed_model,
+                                                         callback_manager=callback_manager)
+            self.index.storage_context.persist(persist_dir=CACHE_DIRECTORY + "/index")
+            with open(hash_file, "w") as f:
+                f.write(utils.compute_documents_hash(documents))
+        self.retriever = self.index.as_retriever(similarity_top_k=RETRIEVE_TOP_K)
     def retrieve_nodes(self, query: str):
         """Retrieve relevant documents using the retriever."""
         nodes = self.retriever.retrieve(query)
         logging.info(f"Retrieved {len(nodes)} nodes.")
         return nodes
+
 
 
 
