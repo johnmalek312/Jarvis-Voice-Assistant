@@ -27,6 +27,7 @@ if __name__ == "__main__": # important to stop RealtimeSTT from reloading module
     from llm_response_generator import LLMResponseGenerator
     from prompts import *
     from config import *
+    from scripts import data_manager
 
 
 
@@ -105,6 +106,8 @@ class VoiceAssistant:
             n_message_history=ModelConfig.MAX_MESSAGE_HISTORY,
             trace=trace
         )
+        data_manager.DataManager.llm = self.llm
+        data_manager.DataManager.va = self
         logging.info("Initializing STT Engine...")
         # Initialize STT
         self.recorder = AudioToTextRecorder(

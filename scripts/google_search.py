@@ -31,6 +31,10 @@ def google_search(query: str) -> list[dict] | str:
     except Exception as e:
         return "Error while searching Google: " + str(e)
 
+
+
+
+
 def load_data(
     soup_reader,
     urls: list[str],

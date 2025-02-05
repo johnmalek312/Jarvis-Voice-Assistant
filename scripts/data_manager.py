@@ -4,12 +4,24 @@ import json
 import os
 from pathlib import Path
 
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from llm_response_generator import LLMResponseGenerator
+    from main import VoiceAssistant
+    from llama_index.core.callbacks import TokenCountingHandler
+
+
 class DataManager:
     # Define the file paths inside the DataManager
     FILE_PATHS = {
         "general_data.json": Path("scripts_data/general_data.json").resolve(),
     }
 
+    llm = None
+    va = None
+    token_counter = None
     data_cache = {}
 
     @classmethod
@@ -73,3 +85,4 @@ class DataManager:
         """Access browser data for the browser settings."""
         data = cls._load_data("general_data.json")
         return data.get('browser_data', {})
+

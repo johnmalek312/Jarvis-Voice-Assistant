@@ -37,6 +37,8 @@ if FEATURES.INSTAGRAM:
 if FEATURES.URL_SHORTENER:
     logging.info("Loading url shortener module...")
     from . import url_shortner
-
+if FEATURES.LLM_WORKFLOW:
+    logging.info("Loading llm workflow module...")
+    from . import llm_workflow
 
 logging.info("Features loaded successfully!")

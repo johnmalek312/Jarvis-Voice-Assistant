@@ -1,13 +1,11 @@
 import instaloader
 import re
-
-from pydantic import Field
+from typing import Annotated
 from logger import app_logger as logging
 from tool_registry import register_tool
 L = instaloader.Instaloader()
 L.context.max_connection_attempts = 1
 download_folder = "instagram_downloads"
-
 
 def login(username="", password="") -> instaloader.Instaloader | None:
     """Logs in to Instagram."""
@@ -32,7 +30,7 @@ def login(username="", password="") -> instaloader.Instaloader | None:
         return L
 
 
-def download_highlight(url, path: str=Field(download_folder, description="The directory path to save the downloaded highlights.")):
+def download_highlight(url, path: Annotated[str, "The directory path to save the downloaded highlights."] = download_folder):
     """
     Downloads an Instagram highlight.
     The highlight URL is expected to be in the format:
@@ -65,7 +63,8 @@ def download_highlight(url, path: str=Field(download_folder, description="The di
         print("Highlight not found for the given profile.")
 
 #@register_tool()
-def download_post(url: str = Field(description="The shortcode or url of the instagram post."), path: str=Field(download_folder, description="The directory path to save the downloaded post.")) -> bool:
+def download_post(url: Annotated[str, "The shortcode or url of the instagram post."], 
+                 path: Annotated[str, "The directory path to save the downloaded post."] = download_folder) -> bool:
     """Downloads an Instagram post given its shortcode."""
     if "/p/" in url:
         shortcode = url.split("/p/")[1].split("/")[0]
@@ -73,7 +72,8 @@ def download_post(url: str = Field(description="The shortcode or url of the inst
     return L.download_post(post, target=path)
 
 #@register_tool()
-def download_reel(url: str = Field(description="The shortcode or url of the instagram reel."), path: str=Field(download_folder, description="The directory path to save the downloaded reels.")) -> bool:
+def download_reel(url: Annotated[str, "The shortcode or url of the instagram reel."], 
+                 path: Annotated[str, "The directory path to save the downloaded reels."] = download_folder) -> bool:
     """Downloads an Instagram reel given its shortcode or url."""
     if "reel" in url:
         shortcode = url.split("/reel/")[1].split("/")[0]
@@ -81,7 +81,8 @@ def download_reel(url: str = Field(description="The shortcode or url of the inst
     return L.download_post(post, target=post.owner_username)
 
 # TODO: Broken needs fixing
-def download_story(url: str = Field(description="The url of the instagram story."), path: str=Field(download_folder, description="The directory path to save the downloaded story.")) -> bool:
+def download_story(url: Annotated[str, "The url of the instagram story."], 
+                  path: Annotated[str, "The directory path to save the downloaded story."] = download_folder) -> bool:
     """
     Downloads Instagram story content.
     If a specific story item (with media id) is provided in the URL, downloads that item.
@@ -119,7 +120,8 @@ def download_story(url: str = Field(description="The url of the instagram story.
             print(f"Profile {profile_name} does not exist.")
 
 #@register_tool()
-def download_profile(url: str = Field(description="The profile url."), path: str=Field(download_folder, description="The directory path to save the downloaded profile.")) -> bool:
+def download_profile(url: Annotated[str, "The profile url."], 
+                    path: Annotated[str, "The directory path to save the downloaded profile."] = download_folder) -> bool:
     """
     Downloads an Instagram profile.
     The URL is expected to be a profile URL, e.g., https://www.instagram.com/<profile_name>/.
@@ -129,11 +131,11 @@ def download_profile(url: str = Field(description="The profile url."), path: str
         profile_name = profile_match.group(1)
         profile = instaloader.Profile.from_username(L.context, profile_name)
         return L.download_title_pic(profile.profile_pic_url, path, 'profile_pic', profile)
-    return False
+    return False   
 
 # TODO: make this cleaner
 @register_tool()
-def download_from_url(url = Field(description="The url of instagram content to download.")) -> str:
+def download_from_url(url: Annotated[str, "The url of instagram content to download."]) -> str:
     """
     Determines the type of Instagram content from the URL and dispatches to the appropriate download function.
     Supports posts, reels, and profile downloads.

@@ -6,13 +6,12 @@ from llama_index.core.tools import FunctionTool
 from llama_index.core.workflow import Workflow, StartEvent, StopEvent, step
 from llama_index.llms.openai import OpenAI
 
-from pydantic import Field
+from typing import Annotated
 
 
 from tool_registry import TOOL_REGISTRY
 from .response_event import InputEvent, ToolCallEvent
 from logger import app_logger as logging
-
 
 
 class FunctionCallingAgent(Workflow):
@@ -24,13 +23,15 @@ class FunctionCallingAgent(Workflow):
         n_message_history: int = 3,
         index_handler = None,
         tools,
+        callback_manager = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
-
         self.llm = llm or OpenAI()
         assert self.llm.metadata.is_function_calling_model
 
+        if callback_manager:
+            self.llm.callback_manager = callback_manager # set the callback manager for llm
 
         self.sys_message = ChatMessage(role=MessageRole.SYSTEM, content=system_prompt)
         self.memory = ChatMemoryBuffer.from_defaults(llm=llm, chat_history=[self.sys_message])
@@ -41,24 +42,6 @@ class FunctionCallingAgent(Workflow):
         self.index_handler = index_handler # used to retrieve relevant nodes
         self.current_tools = [] # the list of tools passed to the LLM
         self.tools: list[dict] = tools # the list of all available tools, those are filtered (query retrieval)
-        def query_tool(query: str = Field(description=(
-        "Focus on the required tool or action, not the task. Use general terms to describe the functionality rather than task-specific details.\n\n"
-        "Example:\n\n"
-        "    Task: 'Send an email to my friend.'\n"
-        "    Bad query: 'Email my friend'\n"
-        "    Good query: 'Function to send an email'\n"
-        "    General Guideline: Use terms like 'function to send,' 'function to open,' or 'function to process' to emphasize the tool rather than the specific task."
-    ))) -> str: # used to retrieve relevant tools
-            """Fetches new function tools using retrieval-augmented generation (RAG) based on the query and updates the current tools with the relevant ones.
-
-                This can only be used once per message, as it will overwrite previous tools.
-
-                YOU MUST NOT USE THIS FUNCTION MORE THAN ONCE PER MESSAGE!
-            """
-            self.current_tools = FunctionCallingAgent.get_tools_from_nodes(self.index_handler.retrieve_nodes(query))
-            return "Fetched new tools based on the query."
-        self.query_tool = query_tool
-        self.tools.append({"static": FunctionTool.from_defaults(query_tool)})
     def reset(self):
         self.memory = ChatMemoryBuffer.from_defaults(llm=self.llm, chat_history=[self.sys_message])
         self.sources = []
@@ -110,11 +93,10 @@ class FunctionCallingAgent(Workflow):
     @step
     async def handle_tool_calls(self, ev: ToolCallEvent) -> InputEvent:
         """Handle tool calls and get the output."""
-        tool_calls = ev.tool_calls
+        tool_calls = ev.tool_calls # get the tools that llm called
         tools_by_name = {list(tool_dict.values())[0].metadata.get_name(): list(tool_dict.values())[0] for tool_dict in
-                         self.tools}
+                         self.tools} # get all available tools
         tool_msgs = []
-        query: str = ""
         # call tools -- safely!
         for tool_call in tool_calls:
             tool = tools_by_name.get(tool_call.tool_name)
@@ -164,6 +146,7 @@ class FunctionCallingAgent(Workflow):
         nodes.sort(key=lambda node: node.score, reverse=True) # reverse to make sure important nodes are prioritized
         files = {node.metadata.get("file_name") for node in nodes if node.metadata and "file_name" in node.metadata}
         files.add("static") # add the "static" tools
+
         return [item[file_name] for item in TOOL_REGISTRY for file_name in item if file_name in files]
 
 
