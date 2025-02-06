@@ -32,5 +32,11 @@
   "theguardian": {
     "_comment": "This is for the news API. You can get your own key from https://open-platform.theguardian.com/",
     "api_key": "api key here"
+  },
+  "pastebin": {
+    "_comment": "This is for the pastebin API. You can get your own key from https://pastebin.com/doc_api",
+    "api_key": "api key here",
+    "username": "pastebin username",
+    "password": "pastebin password"
   }
 }
