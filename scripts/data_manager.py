@@ -32,7 +32,7 @@ class DataManager:
             if data:
                 file_path = cls.FILE_PATHS.get(file_name)
                 if file_path:
-                    with open(file_path, 'w') as f:
+                    with open(file_path, 'w', encoding="utf-8") as f:
                         json.dump(data, f, indent=4)
         else:
             for file_name, data in cls.data_cache.items():
@@ -85,4 +85,9 @@ class DataManager:
         """Access browser data for the browser settings."""
         data = cls._load_data("general_data.json")
         return data.get('browser_data', {})
-
+    @classmethod
+    @property
+    def pastebin(cls):
+        """Access pastebin data for the pastebin settings."""
+        data = cls._load_data("general_data.json")
+        return data.get('pastebin', {})

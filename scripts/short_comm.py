@@ -11,12 +11,14 @@ The module offers functionality to:
 These operations facilitate smooth data transfer and communication with the assistant.
 """
 import threading
+from pathlib import Path
 
 import pyperclip
 import tkinter as tk
 from tkinter import filedialog, colorchooser, ttk
 from tool_registry import register_tool
 from functools import partial
+
 
 @register_tool()
 def get_clipboard() -> str:
@@ -215,6 +217,9 @@ def get_color() -> str | None:
     result = colorchooser.askcolor()
     root.destroy()
     return result[1] if result else None
+
+
+
 
 def center_window(window):
     """Center a Tkinter window on the screen"""

@@ -69,7 +69,6 @@ def load_data(
 
         soup = BeautifulSoup(page.content, "html.parser")
 
-        data = ""
         extra_info = {"URL": url}
         if hostname in soup_reader._website_extractor:
             data, metadata = soup_reader._website_extractor[hostname](

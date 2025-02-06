@@ -40,5 +40,7 @@ if FEATURES.URL_SHORTENER:
 if FEATURES.LLM_WORKFLOW:
     logging.info("Loading llm workflow module...")
     from . import llm_workflow
-
+if FEATURES.PASTEBIN:
+    logging.info("Loading pastebin module...")
+    from . import pastebin
 logging.info("Features loaded successfully!")

@@ -247,7 +247,7 @@ def get_message_by_id(msg_id: str, user_id: str = 'me', attachments: str = 'refe
     return message_to_json(gmail._build_message_from_ref(user_id, message_ref, attachments))
 
 
-def message_to_json(message: Message) -> dict:
+def message_to_json(message: Message) -> dict | str:
     """
     Summarize a Gmail Message object to a JSON-friendly format.
     """
@@ -273,8 +273,7 @@ def message_to_json(message: Message) -> dict:
         return summary
 
     except AttributeError as e:
-        print(f"Error: {e} - Ensure you are passing a valid Message object.")
-        return None
+        return f"Error: {e} - Ensure you are passing a valid Message object."
     
 
 def snip(message: Message) -> dict:

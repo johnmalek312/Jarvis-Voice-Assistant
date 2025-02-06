@@ -24,3 +24,6 @@ GPUtil==1.4.0
 git+https://github.com/rasa/simplegmail.git@rasa/add-max-results
 instaloader==4.14.1
 websocket-client==1.8.0
+beautifulsoup4==4.12.3
+selenium==4.28.1
+tiktoken==0.8.0

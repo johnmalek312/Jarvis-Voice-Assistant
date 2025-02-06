@@ -65,3 +65,9 @@ def open_youtube(search_query: str = None) -> None | str:
         return "YouTube opened in browser"
     except Exception as e:
         return f"Error while opening YouTube: {e}"
+
+register_tool(open_new_tab)
+register_tool(open_shortcut)
+register_tool(list_shortcuts)
+register_tool(open_google)
+register_tool(open_youtube)
