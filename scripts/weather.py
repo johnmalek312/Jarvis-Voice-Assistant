@@ -47,7 +47,7 @@ def get_weather(place_id: str = "") -> str:
         return "Error while getting weather: " + str(e)
 
 @register_tool()
-def get_weekly_forecast(place_id: str = ""):
+def get_weekly_forecast(place_id: str = "") -> list[dict]:
     """
     Retrieve a 7-day weather forecast (for today and the next 6 days) for a specified place_id. If place_id is not provided it uses user's location.
 

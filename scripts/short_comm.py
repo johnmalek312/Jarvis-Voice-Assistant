@@ -52,7 +52,7 @@ def clear_clipboard() -> None | str:
     
 
 @register_tool()
-def get_input(message: str, multi_line=False) -> None | str:
+def get_input(message: str, multi_line: bool = False) -> None | str:
     """
     Displays an interactive dialog box to collect user input with a customizable interface.
     Parameters:

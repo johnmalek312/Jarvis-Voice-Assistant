@@ -4,7 +4,6 @@ This can mark emails as read, important, starred, spam, and more."""
 
 from simplegmail import Gmail, label
 from simplegmail.message import Message
-from typing import List, Union, Any
 import os
 from datetime import datetime
 from tool_registry import register_tool
@@ -29,9 +28,9 @@ def get_all_emails(include_spam_and_trash: bool = True, number_of_results: int =
     return [snip(email) for email in gmail.get_messages(include_spam_trash=include_spam_and_trash)]
 
 @register_tool()
-def send_email(to: Union[str, List[str]], subject: str, body: str,
-               html: bool = False, cc: List[str] = None,
-               bcc: List[str] = None, attachments: List[str] = None) -> None:
+def send_email(to: list[str], subject: str, body: str,
+               html: bool = False, cc: list[str] = None,
+               bcc: list[str] = None, attachments: list[str] = None) -> None:
     """
     Send an email with provided details such as subject, body, and attachments.
     Supports HTML format along with optional CC and BCC recipients.
@@ -39,8 +38,8 @@ def send_email(to: Union[str, List[str]], subject: str, body: str,
     msg_html = body if html else None
     msg_plain = None if html else body
 
-    if isinstance(to, str):
-        to = [to]
+    # if isinstance(to, str):
+    #     to = [to]
 
     for recipient in to:
         gmail.send_message(
@@ -127,7 +126,7 @@ def get_labels() -> list[str]:
     return labels
 
 @register_tool()
-def download_attachments(message_id, download_dir: str = "downloaded_email_attachements") -> list[str]:
+def download_attachments(message_id: str, download_dir: str = "downloaded_email_attachements") -> list[str]:
     """
     Download all attachments for the specified email message.
     Saves files into the designated directory and returns their paths.
@@ -144,19 +143,19 @@ def download_attachments(message_id, download_dir: str = "downloaded_email_attac
         downloaded_files.append(filepath)
     return downloaded_files
 
-@register_tool()
-def get_emails_by_date(start_date: datetime, end_date: datetime = None) -> list:
-    """
-    Retrieve email summaries within a specific date range.
-    Start date is required, and an optional end date can narrow the search.
-    """
-    date_query = f"after:{start_date.strftime('%Y/%m/%d')}"
-    if end_date:
-        date_query += f" before:{end_date.strftime('%Y/%m/%d')}"
-    return [snip(email) for email in gmail.get_messages(query=date_query)]
+# @register_tool()
+# def get_emails_by_date(start_date: datetime, end_date: datetime = None) -> list:
+#     """
+#     Retrieve email summaries within a specific date range.
+#     Start date is required, and an optional end date can narrow the search.
+#     """
+#     date_query = f"after:{start_date.strftime('%Y/%m/%d')}"
+#     if end_date:
+#         date_query += f" before:{end_date.strftime('%Y/%m/%d')}"
+#     return [snip(email) for email in gmail.get_messages(query=date_query)]
 
 @register_tool()
-def mark_as_read(message_id) -> None:
+def mark_as_read(message_id: str) -> None:
     """
     Mark the specified email as read.
     Removes the 'UNREAD' label from the email.
@@ -164,7 +163,7 @@ def mark_as_read(message_id) -> None:
     get_message_by_id(message_id).remove_label('UNREAD')
 
 @register_tool()
-def mark_as_important(message_id) -> None:
+def mark_as_important(message_id: str) -> None:
     """
     Mark the specified email as important.
     Adds the 'IMPORTANT' label to the email.
@@ -172,7 +171,7 @@ def mark_as_important(message_id) -> None:
     get_message_by_id(message_id).add_label('IMPORTANT')
 
 @register_tool()
-def mark_as_not_important(message_id) -> None:
+def mark_as_not_important(message_id: str) -> None:
     """
     Remove the important status from the specified email.
     This is achieved by removing the 'IMPORTANT' label.
@@ -180,7 +179,7 @@ def mark_as_not_important(message_id) -> None:
     get_message_by_id(message_id).remove_label('IMPORTANT')
 
 @register_tool()
-def mark_as_unread(message_id) -> None:
+def mark_as_unread(message_id: str) -> None:
     """
     Mark the specified email as unread.
     Achieved by adding the 'UNREAD' label to the email.
@@ -188,7 +187,7 @@ def mark_as_unread(message_id) -> None:
     get_message_by_id(message_id).add_label('UNREAD')
 
 @register_tool()
-def archive_email(message_id) -> None:
+def archive_email(message_id: str) -> None:
     """
     Archive the specified email by removing it from the inbox.
     This is done by removing the 'INBOX' label.
@@ -196,7 +195,7 @@ def archive_email(message_id) -> None:
     get_message_by_id(message_id).remove_label('INBOX')
 
 @register_tool()
-def move_to_trash(message_id) -> None:
+def move_to_trash(message_id: str) -> None:
     """
     Move the specified email to the trash folder.
     Accomplished by adding the 'TRASH' label.
@@ -204,7 +203,7 @@ def move_to_trash(message_id) -> None:
     get_message_by_id(message_id).add_label('TRASH')
 
 @register_tool()
-def mark_as_spam(message_id) -> None:
+def mark_as_spam(message_id: str) -> None:
     """
     Mark the specified email as spam.
     Adds the 'SPAM' label to indicate unsolicited content.
@@ -212,7 +211,7 @@ def mark_as_spam(message_id) -> None:
     get_message_by_id(message_id).add_label('SPAM')
 
 @register_tool()
-def star_email(message_id) -> None:
+def star_email(message_id: str) -> None:
     """
     Star the specified email to mark it as important.
     Achieved by adding the 'STARRED' label.

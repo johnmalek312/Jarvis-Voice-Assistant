@@ -4,7 +4,7 @@ from typing import Annotated
 
 from tool_registry import register_tool
 from .data_manager import DataManager
-
+from config import Top_K_Retriever
 @register_tool()
 def get_tokens_spent():
     """Returns the amount of tokens spent in the current session or since the last token reset.
@@ -63,5 +63,7 @@ def query_tool(query: Annotated[str,
 
         YOU MUST NOT USE THIS FUNCTION MORE THAN ONCE PER MESSAGE!
     """
+    if Top_K_Retriever == -1:
+        return "All tools are already in the query."
     DataManager.llm.agent_flow.get_tools_from_nodes(DataManager.llm.index_handler.retrieve_nodes(query))
     return "Fetched new tools based on the query."

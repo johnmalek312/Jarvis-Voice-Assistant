@@ -6,13 +6,12 @@ from llama_index.core.tools import FunctionTool
 from llama_index.core.workflow import Workflow, StartEvent, StopEvent, step
 from llama_index.llms.openai import OpenAI
 
-from typing import Annotated
 
 
 from tool_registry import TOOL_REGISTRY
 from .response_event import InputEvent, ToolCallEvent
 from logger import app_logger as logging
-
+from config import Top_K_Retriever
 
 class FunctionCallingAgent(Workflow):
     def __init__(
@@ -68,14 +67,16 @@ class FunctionCallingAgent(Workflow):
     ) -> ToolCallEvent | StopEvent:
         """Handle input to the LLM and retreive the most relevant tools using RAG."""
         message = ev.message
-        if message:
+        if Top_K_Retriever == -1:
+            self.current_tools = [list(d.values())[0] for d in TOOL_REGISTRY]
+        elif message:
             # retrieve relevant nodes
             nodes = self.index_handler.retrieve_nodes(message)
             self.current_tools = FunctionCallingAgent.get_tools_from_nodes(nodes=nodes) or []
             ### make the current tools be the tools where key is "static" from self.tools list of key value pairs
         chat_history = ev.input
         response = await self.llm.achat_with_tools(
-            tools=self.current_tools, chat_history=chat_history, allow_parallel_tool_calls=True
+            tools=self.current_tools, chat_history=chat_history, allow_parallel_tool_calls=True, verbose=True
         )
         self.memory.put(response.message)
 
@@ -146,9 +147,7 @@ class FunctionCallingAgent(Workflow):
         nodes.sort(key=lambda node: node.score, reverse=True) # reverse to make sure important nodes are prioritized
         files = {node.metadata.get("file_name") for node in nodes if node.metadata and "file_name" in node.metadata}
         files.add("static") # add the "static" tools
-
         return [item[file_name] for item in TOOL_REGISTRY for file_name in item if file_name in files]
-
 
 
 

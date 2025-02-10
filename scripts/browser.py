@@ -21,26 +21,6 @@ def open_new_tab(url: str = None) -> None | str:
         return f"Error while opening new tab: {e}"
 
 @register_tool()
-def open_shortcut(shortcut: str) -> bool | str:
-    """Opens a website using predefined shortcut like using 'github' to open 'https://github.com'"""
-    try:
-        websites = dm.websites
-        if shortcut.lower() in websites:
-            open_new_tab(websites[shortcut.lower()])
-            return True
-        return False
-    except Exception as e:
-        return f"Error while opening shortcut: {e}"
-
-@register_tool()
-def list_shortcuts() -> list | str:
-    """Returns list of all available shortcuts"""
-    try:
-        return sorted(list(dm.websites.keys()))
-    except Exception as e:
-        return f"Error while listing shortcuts: {e}"
-
-@register_tool()
 def open_google(query: str = "") -> None | str:
     """Opens browser with a Google search query in browser. Try not to use this unless specified otherwise use your own knowledge"""
     try:
@@ -67,7 +47,5 @@ def open_youtube(search_query: str = None) -> None | str:
         return f"Error while opening YouTube: {e}"
 
 register_tool(open_new_tab)
-register_tool(open_shortcut)
-register_tool(list_shortcuts)
 register_tool(open_google)
 register_tool(open_youtube)

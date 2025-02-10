@@ -35,7 +35,7 @@ def shorten_url(long_url: str, alias: str = "") -> str:
         )
         
         if response.status_code == 200:
-            return response.json()['data']['tiny_url']
+            return f"The shortened url is this: {response.json()['data']['tiny_url']}"
         else:
             raise Exception(f"API Error: {response.status_code}, {response.text}")
             

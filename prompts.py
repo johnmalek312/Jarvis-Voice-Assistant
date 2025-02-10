@@ -8,4 +8,8 @@ sys_prompt_v2 = (
     "Never say you don't have access to something before trying to use the query_tool function."
 )
 
+gemini_prompt = (
+    ""
+) # gemini system prompt for now
+
 

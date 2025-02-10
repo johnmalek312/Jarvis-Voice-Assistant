@@ -15,7 +15,7 @@ def wikipedia_page_url(title: str) -> str:
 
 
 @register_tool()
-def wikipedia_summary(title: str, auto_suggest: bool = True, sentences = 3) -> str:
+def wikipedia_summary(title: str, auto_suggest: bool = True, sentences: int = 3) -> str:
     """This function returns the summary of the Wikipedia page based on the title. The auto_suggest parameter is set to True by default. If the auto_suggest parameter is set to True, the function will suggest the valid search query based on the input query. If the auto_suggest parameter is set to False, the function will return the summary of the Wikipedia page based on the input query without suggesting the valid search query."""
     return wikipedia.summary(title, auto_suggest=auto_suggest, sentences=sentences)
 

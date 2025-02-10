@@ -206,3 +206,5 @@ assets/output1.wav
 scripts_data/gmail_token.json
 
 cache/
+
+.vscode/

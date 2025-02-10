@@ -2,7 +2,6 @@
 if __name__ == "__main__": # important to stop RealtimeSTT from reloading modules in child process.
     # logging
     from logger import app_logger as logging
-    import logger
     logging.info("Importing libraries...")
     # Disable TensorFlow optimization for compatibility
     import os
@@ -23,11 +22,14 @@ if __name__ == "__main__": # important to stop RealtimeSTT from reloading module
     from RealtimeSTT import AudioToTextRecorder
 
     # AI/ML imports
-    from helpers.utils import *
     from llm_response_generator import LLMResponseGenerator
     from prompts import *
     from config import *
     from scripts import data_manager
+
+    # Helper imports
+    from helpers import llamaindex_helper
+    from helpers.utils import *
 
 
 
@@ -82,7 +84,7 @@ class VoiceAssistant:
         elif Engine == "OpenAI":
             # Use OpenAI TTS engine
             from RealtimeTTS import OpenAIEngine
-            self.audio_engine = OpenAIEngine(model=OpenAIConfig.model, voice=OpenAIConfig.voice)
+            self.audio_engine = OpenAIEngine(model=OpenaiTTSConfig.model, voice=OpenaiTTSConfig.voice)
         elif Engine == "GTTS":
             # Use GTTS engine
             from RealtimeTTS import GTTSEngine, GTTSVoice
@@ -101,18 +103,16 @@ class VoiceAssistant:
         # Initialize LLM
         self.llm = LLMResponseGenerator(
             api_key=APIConfig.OPENAI,
-            model_name=ModelConfig.LLM_MODEL,
             sys_prompt=sys_prompt_v2,
-            n_message_history=ModelConfig.MAX_MESSAGE_HISTORY,
+            n_message_history=timeout,
             trace=trace
         )
-        data_manager.DataManager.llm = self.llm
         data_manager.DataManager.va = self
         logging.info("Initializing STT Engine...")
         # Initialize STT
         self.recorder = AudioToTextRecorder(
-            model=ModelConfig.WHISPER_MODEL,
-            language=ModelConfig.WHISPER_LANGUAGE,
+            model=STTConfig.WHISPER_MODEL,
+            language=STTConfig.WHISPER_LANGUAGE,
             spinner=True,
             min_length_of_recording=1.1,
             on_vad_detect_start=partial(AudioManager.play_sound, AUDIO_FILES.ACTIVATE),

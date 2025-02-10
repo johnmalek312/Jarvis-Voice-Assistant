@@ -3,6 +3,7 @@
 from pbwrap import Pastebin as OriginalPastebin  # Import original class and rename it
 from .data_manager import DataManager
 from tool_registry import register_tool
+from logger import app_logger as logging
 class PastebinWrapper:
     """
     A simplified wrapper for the Pastebin API, exposing only the most commonly used functions.
@@ -17,30 +18,27 @@ class PastebinWrapper:
         try:
             result = cls._pastebin.authenticate(username, password)
             if not result:
-                print("Authentication failed: Invalid username or password.")
+                logging.warning("Authentication failed: Invalid username or password.")
             elif "Bad API request" in result:
-                print(f"Authentication failed: {result}")
-            else:
-                print(f"Authentication successful. User key: {result[:10]}...")
+                logging.warning(f"Authentication failed: {result}")
         except Exception as e:
-            print(f"Authentication failed with an exception: {e}")
+            logging.warning(f"Authentication failed with an exception: {e}")
 
     @classmethod
     @register_tool()
     def create_paste(
         cls,
-        paste_code,
-        private=2,
-        name=None,
-        expire_date=None,
-        format=None,
-    ):
+        paste_code: str,
+        visibility: int = 0,
+        name: str = None,
+        format: str = None,
+    ) -> str:
         """
 Creates a new paste on Pastebin.
 
 Parameters:
 - paste_code: The content of the paste.
-- private: Visibility of the paste (0 = public, 1 = unlisted, 2 = private).
+- visibility: Visibility of the paste (0 = public, 1 = unlisted, 2 = private) dont pass it unless specified.
 - name: Optional name for the paste.
 - expire_date: Optional expiration date for the paste.
 - format: Optional syntax highlighting format for the paste eg. 'python', 'javascript'.
@@ -50,15 +48,15 @@ The new paste URL if successful, else an error message.
         """
         return cls._pastebin.create_paste(
             api_paste_code=paste_code,
-            api_paste_private=private,
+            api_paste_private=visibility,
             api_paste_name=name,
-            api_paste_expire_date=expire_date,
+            api_paste_expire_date=None,
             api_paste_format=format,
         )
 
     @classmethod
     @register_tool()
-    def get_trending_paste(cls):
+    def get_trending_paste(cls) -> list[dict]:
         """
         Retrieves trending pastes from Pastebin.
         Returns a list of trending paste objects.
@@ -67,7 +65,7 @@ The new paste URL if successful, else an error message.
 
     @classmethod
     @register_tool()
-    def get_raw_paste(cls, paste_id):
+    def get_raw_paste(cls, paste_id: str) -> str:
         """
         Retrieves the raw text of a paste.
         Returns the paste content for the given paste ID.
@@ -76,7 +74,7 @@ The new paste URL if successful, else an error message.
 
     @classmethod
     @register_tool()
-    def delete_paste(cls, paste_key):
+    def delete_paste(cls, paste_key: str) -> str:
         """
         Deletes a user paste on Pastebin.
         Returns the deletion result or an error message.
