@@ -39,9 +39,11 @@
      ```bash
      choco install ffmpeg
      ```
+## Workflow diagram
+![Image](https://media.discordapp.net/attachments/1073226620137119834/1337381057493991464/diagram-export-2-7-2025-10_14_39-PM.png?ex=67a73cab&is=67a5eb2b&hm=d471a35d03ddb0e92aa4e873f18b3421f00ba633d63704fbec553cda8959a119&=&format=webp&quality=lossless&width=1161&height=700)
 
 ## Configuration
-
+(Configurations have changed slightly)
 1. **API Keys**
 
    Update the 
@@ -100,9 +102,6 @@ Once running, Nova will listen for voice commands and respond accordingly. Use t
 
 - [ ] **Fix Hotkey Functionalities**: Finalize the setup and handling of hotkeys for controlling the assistant.
 - [ ] **Add Support for Gemini.**
-- [ ] **Enhance Error Handling.**
-- [ ] **Integrate More Tools.**
-- [ ] **Expand Configuration Options**: Provide more customizable settings for users to tailor the assistant to their preferences.
 - [ ] **User Interface Improvements**: Develop a graphical interface for easier interaction and control.
 
 ## Contributing
