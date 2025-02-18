@@ -46,7 +46,7 @@ class FunctionCallingAgent(Workflow):
         self.sources = []
         self.current_tools = []
     @step
-    async def prepare_chat_history(self, ev: StartEvent) -> InputEvent:
+    async def prepare_chat_history(self, ev: StartEvent) -> InputEvent | StopEvent:
         """Prepare chat history for the LLM."""
         # clear sources
         self.sources = []
@@ -56,7 +56,6 @@ class FunctionCallingAgent(Workflow):
         user_input = ev.input
         user_msg = ChatMessage(role="user", content=user_input)
         self.memory.put(user_msg)
-
         # get chat history
         chat_history = self.memory.get()
 
@@ -86,7 +85,7 @@ class FunctionCallingAgent(Workflow):
 
         if not tool_calls:
             return StopEvent(
-                result={"response": response.message.content, "sources": [*self.sources]}
+                result={"response": response.message.content, "sources": [*self.sources], "code": "no_tool_calls"}
             )
         else:
             return ToolCallEvent(tool_calls=tool_calls)

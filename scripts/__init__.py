@@ -43,4 +43,7 @@ if FEATURES.LLM_WORKFLOW:
 if FEATURES.PASTEBIN:
     logging.info("Loading pastebin module...")
     from . import pastebin
+if FEATURES.GPT_RESEARCHER:
+    logging.info("Loading gpt researcher module...")
+    from . import gpt_researcher
 logging.info("Features loaded successfully!")

@@ -1,5 +1,3 @@
-# data_manager.py
-
 import json
 import os
 from pathlib import Path
@@ -11,7 +9,7 @@ if TYPE_CHECKING:
     from llm_response_generator import LLMResponseGenerator
     from main import VoiceAssistant
     from llama_index.core.callbacks import TokenCountingHandler
-
+    from asyncio import AbstractEventLoop
 
 class DataManager:
     # Define the file paths inside the DataManager
@@ -23,7 +21,6 @@ class DataManager:
     va = None
     token_counter = None
     data_cache = {}
-
     @classmethod
     def save_data_cache(cls, file_name: str=""):
         """Saves the data cache to their respective JSON files."""

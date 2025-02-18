@@ -45,7 +45,7 @@ class AudioManager:
 
 class VoiceAssistant:
     def __init__(self):
-        self.is_va_paused = False
+        self.paused = False
         self.interrupt_audio_player = False
         self.is_active = True
         self.async_loop = None
@@ -58,6 +58,8 @@ class VoiceAssistant:
         self.initialize_components()
         logging.info("Setting up hotkeys...")
         self.setup_hotkeys()
+
+        self.paused = False # used to toggle pause
 
     def initialize_components(self):
         # Initialize text-to-speech engine based on selected Engine type
@@ -103,7 +105,7 @@ class VoiceAssistant:
         # Initialize LLM
         self.llm = LLMResponseGenerator(
             api_key=APIConfig.OPENAI,
-            sys_prompt=sys_prompt_v2,
+            sys_prompt=gemini_prompt,
             n_message_history=timeout,
             trace=trace
         )
@@ -120,7 +122,6 @@ class VoiceAssistant:
         )
 
     def setup_hotkeys(self):
-        # TODO: Fix pause when the assistant is going through the llama index workflow
         """Sets up keyboard hotkeys for controlling the assistant.
 
         This method configures the following keyboard shortcuts from config.HOTKEYS:
@@ -137,32 +138,38 @@ class VoiceAssistant:
         Thread-safe using assistant_lock to prevent concurrent state changes.
         """
         with self.assistant_lock:
-            if self.recorder.state != "inactive" or self.audio_player.is_playing():
+            if not self.paused:
+                self.paused = True
                 self.pause_assistant()
             else:
+                self.paused = False
                 self.start_assistant()
 
     def pause_assistant(self):
         """Pauses the assistant by stopping the audio player and recorder."""
-        self.is_va_paused = True
+        if self.llm.workflow_handler:
+            try:
+                self.async_loop.create_task(self.llm.workflow_handler.cancel_run())
+            except Exception:
+                pass
         self.audio_player.stop()
-        if self.recorder.state != "inactive":
-            self.recorder.abort()
-            if self.recorder.is_recording:
-                self.recorder.stop()
+        state = self.recorder.state
+        self.recorder.abort()
         self.is_listening = False
-        print("Paused AI assistant.")
+        if state != "recording":
+            AudioManager.play_sound(AUDIO_FILES.DEACTIVATE)
+        logging.info("Paused AI assistant.")
 
     def start_assistant(self):
         """Starts the assistant by resuming the audio player and recorder."""
-        print("Started AI assistant.")
-        self.is_va_paused = False
+        logging.info("Started AI assistant.")
+        self.paused = False
         self.listen_to_user()
 
     def check_interruption(self):
         """Checks if the audio player should be interrupted and stops it if necessary."""
         if self.interrupt_audio_player and self.audio_player.is_playing():
-            print("Interrupting assistant...")
+            logging.info("Interrupting assistant...")
             self.audio_player.stop()
             self.interrupt_audio_player = False
 
@@ -179,13 +186,13 @@ class VoiceAssistant:
             self.is_listening = True
 
         def wrapped():
-            while not self.is_va_paused:
+            while not self.paused:
                 text = self.recorder.text().strip()
-                if text and not self.is_va_paused:
+                if text and not self.paused:
                     self.async_loop.create_task(self.process_response(text))
                     break
                 # if is_listening is set to false by an outside function, the function shouldn't process any requests
-                elif self.is_va_paused:
+                elif self.paused:
                     break
             with self.listen_lock:
                 self.is_listening = False
@@ -194,16 +201,17 @@ class VoiceAssistant:
 
     async def process_response(self, text):
         """Processes the user's text input and generates a response using the LLM. Then it plays the response audio by sending it to the configured TTS Engine."""
-        print(f'User: {text}')
-        response: str = await self.llm.get_response(text)
-        print(f"Assistant: {response}")
-        if __name__ == '__main__':
-            await self.play_audio(clean_text(response))
+        logging.info(f'User: {text}')
+        response: str | None = await self.llm.get_response(text)
+        if response is None:
+            return
+        logging.info(f"Assistant: {response}")
+        self.play_audio(clean_text(response))
 
-    async def play_audio(self, text):
+    def play_audio(self, text):
         """Plays the given text as audio using the configured TTS Engine."""
         self.audio_player.feed(text)
-        self.audio_player.play(muted=False, output_wavfile="assets/output1.wav")
+        self.audio_player.play_async(muted=False, output_wavfile="assets/output1.wav")
 
     async def update_loop(self):
         """Continuously checks for interruptions and sleeps for a short duration."""
@@ -213,15 +221,15 @@ class VoiceAssistant:
 
     async def run(self):
         """Main entry point for the voice assistant."""
-        print("Listening...")
+        logging.info("Listening...")
         try:
             self.async_loop = asyncio.get_running_loop()
             self.listen_to_user()
             await self.update_loop()
         except asyncio.CancelledError:
-            print("Cancelled")
+            logging.info("Cancelled")
         except Exception as e:
-            print(e)
+            logging.info(e)
         finally:
             self.recorder.abort()
             if self.recorder.is_recording:

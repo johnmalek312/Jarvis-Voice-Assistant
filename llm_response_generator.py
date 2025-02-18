@@ -1,3 +1,4 @@
+import llama_index.core.workflow.errors
 import tiktoken
 from llama_index.core.callbacks import TokenCountingHandler, CallbackManager
 from llama_index.readers.docstring_walker import DocstringWalker
@@ -29,10 +30,10 @@ elif config.EmbeddingModel == "huggingface":
     from llama_index.embeddings.huggingface import HuggingFaceEmbedding
     embed_model = HuggingFaceEmbedding(HuggingFaceEmbeddingConfig.MODEL)
 
-if config.LMM_provider == "openai":
+if config.LLM_provider == "openai":
     from llama_index.llms.openai import OpenAI
     llm = OpenAI(api_key=APIConfig.OPENAI, model=OpenAILLMConfig.LLM_MODEL, temperature=OpenAILLMConfig.LLM_TEMPERATURE)
-elif config.LMM_provider == "gemini":
+elif config.LLM_provider == "gemini":
     from llama_index.llms.gemini import Gemini
     llm = Gemini(api_key=APIConfig.GEMINI, model=GeminiLLMConfig.LLM_MODEL, temperature=GeminiLLMConfig.LLM_TEMPERATURE)
 #endregion config
@@ -95,6 +96,8 @@ class LLMResponseGenerator:
             # Instrument LlamaIndex
             LlamaIndexInstrumentor().instrument(tracer_provider=tracer_provider)
 
+        self.workflow_handler = None
+
 
         self.llm = llm
         try:
@@ -123,11 +126,14 @@ class LLMResponseGenerator:
         )
 
 
-    async def get_response(self, input_text: str) -> str:
+    async def get_response(self, input_text: str) -> str | None:
         """Generates a response for the given input text using the LLM model. This passes the input into LlamaIndex workflow."""
-        # try:
-        result = await self.agent_flow.run(input=input_text)
-        return result["response"]
+        try:
+            self.workflow_handler = self.agent_flow.run(input=input_text)
+            result = await self.workflow_handler
+            return result["response"]
+        except llama_index.core.workflow.errors.WorkflowCancelledByUser:
+            return None
         # except Exception as e:
         #     print(f"Error generating response: {e}")
         #     return "error" + str(e)

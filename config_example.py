@@ -1,11 +1,10 @@
-
 class APIConfig:
     """API keys for external services"""
-    PHOENIX: str = "your api key here"  # optional for debugging
-    ELEVENLABS: str = "your api key here"  # optional if not using ElevenLabs
-    OPENAI: str = "your api key here"  # optional if not using openai
-    GEMINI: str = "your api key here"  # optional if not using Gemini
-
+    PHOENIX: str = "replace with your api key"  # only used for debugging (not required)
+    ELEVENLABS: str = "replace with your api key"  # optional if not using ElevenLabs
+    OPENAI: str = "replace with your api key"  # optional if not using openai or the researcher
+    GEMINI: str = "replace with your api key"  # optional if not using Gemini or the researcher
+    TAVILY: str = "replace with your api key" # optional, used for the researcher
 # Phoenix tracing flag
 trace: bool = False
 
@@ -15,10 +14,10 @@ Engine: str = "Piper"  # Available engines: "ElevenLabs", "OpenAI", "Azure", "GT
 # Embedding model
 EmbeddingModel: str = "huggingface" # Available models: "openai", "huggingface"
 
-LMM_provider = "gemini" # Available models: "openai", "gemini"
+LLM_provider = "gemini" # Available models: "openai", "gemini"
 
 MAX_MESSAGE_HISTORY: int = 3
-timeout: int = 30
+timeout: int = 120
 
 
 class ElevenLabConfig:
@@ -92,8 +91,21 @@ class FEATURES:
     PYTHON: bool = True
     LLM_WORKFLOW: bool = True
     PASTEBIN: bool = True
+    GPT_RESEARCHER: bool = True
 
 CACHE_DIRECTORY = "./cache"  # Directory for index persistence
 
-RETRIEVE_TOP_K = 3 # -1 for all # Number of top documents to retrieve when querying for tools
+Top_K_Retriever = -1 # Number of top documents to retrieve when querying for tools. use -1 to retrieve all tools.
 
+
+
+
+def researcher_config(): # read https://docs.gptr.dev/docs/gpt-researcher/gptr/config for config options
+    import os
+    if LLM_provider == "gemini":
+        os.environ["GOOGLE_API_KEY"] = APIConfig.GEMINI
+        os.environ["FAST_LLM"] = "google_genai:gemini-2.0-flash"
+        os.environ["SMART_LLM"] = "google_genai:gemini-2.0-flash"
+        os.environ["STRATEGIC_LLM"] = "google_genai:gemini-2.0-flash"
+        os.environ["EMBEDDING"] = "google_genai:models/text-embedding-004"
+        os.environ["TAVILY_API_KEY"] = APIConfig.TAVILY
