@@ -50,7 +50,7 @@ def register_tool(
                 thread.start()
 
             nonlocal tool_metadata
-            tool_metadata = tool_metadata or FunctionTool.tool_metadata_from_defaults(func, name, description, return_direct, fn_schema)
+            tool_metadata = tool_metadata or FunctionTool.from_defaults(func, name, description, return_direct, fn_schema).metadata
             def async_wrapper(*args, **kwargs):
                 return asyncio.run_coroutine_threadsafe(func(*args, **kwargs), tools_loop).result()
         TOOL_REGISTRY.append({

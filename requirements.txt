@@ -1,6 +1,5 @@
 --extra-index-url https://download.pytorch.org/whl/cu124
 torch==2.5.1+cu124
-torchvision==0.20.1+cu124
 torchaudio==2.5.1+cu124
 realtimetts[elevenlabs,openai,gtts]==0.4.41
 RealtimeSTT==0.3.94
@@ -9,22 +8,23 @@ soundfile==0.13.1
 keyboard==0.13.5
 llama-index-core==0.12.19
 llama-index-llms-openai==0.3.10
+llama-index-llms-gemini==0.4.10
 llama-index-embeddings-openai==0.3.1
+llama-index-embeddings-huggingface==0.5.1
 llama-index-tools-google==0.3.0
 html2text==2024.2.26
 llama-index-readers-web==0.3.5
 pyperclip==1.9.0
+langchain-google-genai==2.0.9
 git+https://github.com/johnmalek312/custom-docstring-walker.git@main
 requests==2.32.3
 wikipedia==1.4.0
 psutil==6.1.1
-pydantic==2.10.6
-SQLAlchemy==2.0.37
 GPUtil==1.4.0
 git+https://github.com/rasa/simplegmail.git@rasa/add-max-results
 instaloader==4.14.1
 websocket-client==1.8.0
 beautifulsoup4==4.12.3
 selenium==4.28.1
-tiktoken==0.9.0
-numpy==2.1
+gpt-researcher==0.11.0
+pbwrap==1.4.0
