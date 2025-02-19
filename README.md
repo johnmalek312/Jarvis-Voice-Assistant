@@ -76,6 +76,7 @@ You can also enable/disable features in `config.py` from the `FEATURES` class.
 
 - [x] **Fix Hotkey Functionalities**: Finalize the setup and handling of hotkeys for controlling the assistant.
 - [x] **Add Support for Gemini.**
+- [ ] **Add image support**: This includes image generation, recognition and extraction from clipboard.
 - [ ] **User Interface Improvements**: Develop a graphical interface for easier interaction and control.
 
 ## Contributing
