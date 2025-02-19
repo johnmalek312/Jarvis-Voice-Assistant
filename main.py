@@ -206,10 +206,12 @@ class VoiceAssistant:
         if response is None:
             return
         logging.info(f"Assistant: {response}")
-        self.play_audio(clean_text(response))
+        self.play_audio(clean_text(extract_final_answer(response)))
 
     def play_audio(self, text):
         """Plays the given text as audio using the configured TTS Engine."""
+        if not text:
+            text = " "
         self.audio_player.feed(text)
         self.audio_player.play_async(muted=False, output_wavfile="assets/output1.wav")
 

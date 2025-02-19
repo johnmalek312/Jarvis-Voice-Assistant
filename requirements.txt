@@ -28,3 +28,4 @@ beautifulsoup4==4.12.3
 selenium==4.28.1
 gpt-researcher==0.11.0
 pbwrap==1.4.0
+pywin32==308

@@ -1,10 +1,10 @@
-# Nova
+# JARVIS
 
-**Nova** is an AI voice assistant that leverages Retrieval-Augmented Generation (RAG) and LlamaIndex to provide intelligent and context-aware interactions. Designed to assist users through voice commands, Nova integrates various AI models and tools to deliver a seamless experience.
+**JARVIS** is an AI voice assistant that leverages Retrieval-Augmented Generation (RAG) and LlamaIndex to provide intelligent and context-aware interactions. Designed to assist users through voice commands, Jarvis integrates various AI models and tools to deliver a seamless experience.
 
 ## Features
 
-- **Voice Interaction**: Communicate with Nova using natural language.
+- **Voice Interaction**: Communicate with Jarvis using natural language.
 - **Retrieval-Augmented Generation (RAG)**: Enhances responses by retrieving relevant information from indexed data.
 - **LlamaIndex Integration**: Efficiently handles data indexing and retrieval.
 - **Multiple TTS Engines**: Supports ElevenLabs, Piper, OpenAI, Azure, and GTTS for text-to-speech functionality.
@@ -17,8 +17,8 @@
    - Visit the [NVIDIA CUDA Downloads](https://developer.nvidia.com/cuda-downloads) to install.
 2. **Clone the Repository**
    ```bash
-   git clone https://github.com/johnmalek312/Nova-Voice-Assistant.git
-   cd Nova-Voice-Assistant
+   git clone https://github.com/johnmalek312/Jarvis-Voice-Assistant.git
+   cd Jarvis-Voice-Assistant
    ```
 
 3. **Create a Virtual Environment**
@@ -42,13 +42,10 @@
 ## Workflow diagram
 ![Image](https://media.discordapp.net/attachments/1073226620137119834/1337381057493991464/diagram-export-2-7-2025-10_14_39-PM.png?ex=67a73cab&is=67a5eb2b&hm=d471a35d03ddb0e92aa4e873f18b3421f00ba633d63704fbec553cda8959a119&=&format=webp&quality=lossless&width=1161&height=700)
 
-## Configuration
-(Configurations have changed slightly)
+## Minimal Configuration
 1. **API Keys**
 
-   Update the 
-
-config.py
+   Update the config.py
 
  file with your API key (currently only support openai for llm responses and function calling):
    ```python
@@ -92,7 +89,7 @@ Run the voice assistant using the following command:
 python main.py
 ```
 
-Once running, Nova will listen for voice commands and respond accordingly. Use the configured hotkeys to control the assistant:
+Once running, Jarvis will listen for voice commands and respond accordingly. Use the configured hotkeys to control the assistant:
 
 - **Pause Key**: Toggles the assistant on/off (Requires some fixing)
 - **Home Key**: Stops the assistant completely

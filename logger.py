@@ -4,7 +4,7 @@ import os
 log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
 
-app_logger = logging.getLogger("nova_logger")
+app_logger = logging.getLogger("jarvis_logger")
 app_logger.setLevel(logging.DEBUG)
 #
 # # File logging
