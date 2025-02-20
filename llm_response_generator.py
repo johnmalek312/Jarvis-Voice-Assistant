@@ -74,7 +74,7 @@ class LlamaIndexHandler:
 
 
 class LLMResponseGenerator:
-    def __init__(self, api_key=APIConfig.OPENAI, sys_prompt=prompts.sys_prompt_v2, n_message_history=config.MAX_MESSAGE_HISTORY, directory_path="scripts", trace = trace):
+    def __init__(self, api_key=APIConfig.OPENAI, sys_prompt=prompts.gemini_prompt, n_message_history=config.MAX_MESSAGE_HISTORY, directory_path="scripts", trace = trace):
         if trace:
             logging.info("Initializing LlamaIndex Tracing...")
             os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = f"api_key={APIConfig.PHOENIX}"
