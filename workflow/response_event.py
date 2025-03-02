@@ -3,10 +3,14 @@ from llama_index.core.tools import ToolSelection, ToolOutput, FunctionTool
 from llama_index.core.workflow import Event
 
 
-class InputEvent(Event):
+
+class ThinkingEvent(Event):
     input: list[ChatMessage]
     message: str = ""
 
+class InputEvent(Event):
+    input: list[ChatMessage]
+    message: str = ""
 
 class ToolCallEvent(Event):
     tool_calls: list[ToolSelection]

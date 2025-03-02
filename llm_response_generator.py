@@ -96,6 +96,8 @@ class LLMResponseGenerator:
             # Instrument LlamaIndex
             LlamaIndexInstrumentor().instrument(tracer_provider=tracer_provider)
 
+        if config.thinking_mode:
+            sys_prompt = ""
         self.workflow_handler = None
 
 

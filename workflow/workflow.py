@@ -9,9 +9,11 @@ from llama_index.llms.openai import OpenAI
 
 
 from tool_registry import TOOL_REGISTRY
-from .response_event import InputEvent, ToolCallEvent
+from .response_event import InputEvent, ToolCallEvent, ThinkingEvent
 from logger import app_logger as logging
-from config import Top_K_Retriever
+from config import Top_K_Retriever, thinking_mode
+
+from prompts import planning_template, execute_plan_prompt, system_planning
 
 class FunctionCallingAgent(Workflow):
     def __init__(
@@ -29,24 +31,23 @@ class FunctionCallingAgent(Workflow):
         self.llm = llm or OpenAI()
         assert self.llm.metadata.is_function_calling_model
 
+        self.sys_message = ChatMessage(role=MessageRole.SYSTEM, content=system_prompt)
         if callback_manager:
             self.llm.callback_manager = callback_manager # set the callback manager for llm
-
-        self.sys_message = ChatMessage(role=MessageRole.SYSTEM, content=system_prompt)
-        self.memory = ChatMemoryBuffer.from_defaults(llm=llm, chat_history=[self.sys_message])
+        self.memory = ChatMemoryBuffer.from_defaults(llm=llm, chat_history=[self.sys_message] if self.sys_message.content else None)
         self.sources = []
-        self.n_message_history = n_message_history
+        self.n_message_history = n_message_history * (thinking_mode * 2 + 1)
 
 
         self.index_handler = index_handler # used to retrieve relevant nodes
-        self.current_tools = [] # the list of tools passed to the LLM
+        self.current_tools: list[FunctionTool] = [] # the list of tools passed to the LLM
         self.tools: list[dict] = tools # the list of all available tools, those are filtered (query retrieval)
     def reset(self):
-        self.memory = ChatMemoryBuffer.from_defaults(llm=self.llm, chat_history=[self.sys_message])
+        self.memory = ChatMemoryBuffer.from_defaults(llm=self.llm, chat_history=[self.sys_message] if self.sys_message.content else None)
         self.sources = []
         self.current_tools = []
     @step
-    async def prepare_chat_history(self, ev: StartEvent) -> InputEvent | StopEvent:
+    async def prepare_chat_history(self, ev: StartEvent) -> InputEvent | StopEvent | ThinkingEvent:
         """Prepare chat history for the LLM."""
         # clear sources
         self.sources = []
@@ -54,12 +55,39 @@ class FunctionCallingAgent(Workflow):
         self.memory = ChatMemoryBuffer.from_defaults(llm=self.llm, chat_history=last_x_messages)
         # get user input
         user_input = ev.input
+        if thinking_mode:
+            plan_message = ChatMessage(role="user", content=system_planning)
+            self.memory.put(plan_message)
+            return ThinkingEvent(input=self.memory.get(), message=user_input)
         user_msg = ChatMessage(role="user", content=user_input)
         self.memory.put(user_msg)
         # get chat history
         chat_history = self.memory.get()
-
         return InputEvent(input=chat_history, message=user_input)
+    
+    @step
+    async def handle_thinking(self, ev: ThinkingEvent) -> InputEvent:
+        """Handle the thinking event."""
+        query = ev.message
+        if Top_K_Retriever == -1:
+            self.current_tools = [list(d.values())[0] for d in TOOL_REGISTRY]
+        elif query:
+            # retrieve relevant nodes
+            nodes = self.index_handler.retrieve_nodes(query)
+            self.current_tools = FunctionCallingAgent.get_tools_from_nodes(nodes=nodes) or []
+        chat_history = ev.input
+        # I want to set context_str to self.current_tools[x].metadata.description where all tools are joined by double \n
+        message = planning_template.format(context_str="\n\n".join([tool.metadata.description for tool in self.current_tools]), query_str=query)
+        self.memory.put(ChatMessage(role="user", content=message))
+        chat_history.append(self.memory.get()[-1])
+        response = await self.llm.achat(
+            messages=chat_history
+        )
+        logging.info("Thinking response: " + str(response.message) + "\n\n\n")
+        self.memory.put(response.message)
+        self.memory.put(ChatMessage(role="user", content=execute_plan_prompt))
+        return InputEvent(input=self.memory.get())
+
     @step
     async def handle_llm_input(
         self, ev: InputEvent

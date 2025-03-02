@@ -38,7 +38,7 @@ def get_weather(place_id: str = "") -> str:
             if not place_id:
                 place_id = get_place_id(dm.user['location']['city'])
                 set_user_place_id(place_id)
-        parameters = {'key': dm.meteosource['api_key'], 'place_id': place_id, 'section': 'current'}
+        parameters = {'key': dm.meteosource['api_key'], 'place_id': place_id, 'sections': 'current'}
         url = "https://www.meteosource.com/api/v1/free/point"
         data = requests.get(url, parameters).json()
         current = data["current"]
