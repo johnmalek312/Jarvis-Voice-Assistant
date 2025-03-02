@@ -14,12 +14,11 @@ Engine: str = "Piper"  # Available engines: "ElevenLabs", "OpenAI", "Azure", "GT
 # Embedding model
 EmbeddingModel: str = "huggingface" # Available models: "openai", "huggingface"
 
-LLM_provider = "gemini" # Available models: "openai", "gemini"
+LLM_provider = "openai" # Available models: "openai", "gemini"
 
 MAX_MESSAGE_HISTORY: int = 3
 timeout: int = 120
-
-
+thinking_mode: bool = True
 class ElevenLabConfig:
     ID: str = "XB0fDUnXU5powFXDhCwa"
     NAME: str = "Charlotte"
@@ -100,12 +99,11 @@ Top_K_Retriever = -1 # Number of top documents to retrieve when querying for too
 
 
 
-def researcher_config(): # read https://docs.gptr.dev/docs/gpt-researcher/gptr/config for config options
+def researcher_config(): # read https://docs.gptr.dev/docs/gpt-researcher/gptr/config for config options and more details
     import os
-    if LLM_provider == "gemini":
-        os.environ["GOOGLE_API_KEY"] = APIConfig.GEMINI
-        os.environ["FAST_LLM"] = "google_genai:gemini-2.0-flash"
-        os.environ["SMART_LLM"] = "google_genai:gemini-2.0-flash"
-        os.environ["STRATEGIC_LLM"] = "google_genai:gemini-2.0-flash"
-        os.environ["EMBEDDING"] = "google_genai:models/text-embedding-004"
-        os.environ["TAVILY_API_KEY"] = APIConfig.TAVILY
+    os.environ["GOOGLE_API_KEY"] = APIConfig.GEMINI
+    os.environ["FAST_LLM"] = "google_genai:gemini-2.0-flash"
+    os.environ["SMART_LLM"] = "google_genai:gemini-2.0-flash"
+    os.environ["STRATEGIC_LLM"] = "google_genai:gemini-2.0-flash"
+    os.environ["EMBEDDING"] = "google_genai:models/text-embedding-004"
+    os.environ["TAVILY_API_KEY"] = APIConfig.TAVILY
